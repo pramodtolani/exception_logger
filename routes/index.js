@@ -1,18 +1,42 @@
 var express = require("express");
 var router = express.Router();
 var httpStatus = require("http-status");
+const exceptionsModel = require("../models/exceptions.model");
 
 var exceptionModel = require("../models/exceptions.model");
 
-
 const ApiError = require("../utils/ApiError");
-const catchAsync = require('../utils/catchAsync');
+const catchAsync = require("../utils/catchAsync");
 
-/* GET home page. */
-router.get("/test1", catchAsync(async function (req, res, next) {
-  console.log("test 1", "test 2", "test 3", "test 4");
-  throw new ApiError(httpStatus.UNAUTHORIZED, "Please authenticate");
-}));
+router.get(
+  "/test1",
+  catchAsync(async function (req, res, next) {
+    console.log("test 1", "test 2", "test 3", "test 4");
+    throw new ApiError(httpStatus.UNAUTHORIZED, "Please authenticate");
+  })
+);
+
+/* mark error to resolve. */
+router.get(
+  "/resolve/:id",
+  catchAsync(async function (req, res) {
+    let id = req.params.id;
+    let objException = await exceptionsModel.findByIdAndUpdate(id, {
+      resolved: exceptionsModel.RESOLVED,
+      resolved_at: new Date(),
+    });
+
+    if (!objException) {
+      throw new ApiError(httpStatus.NO_CONTENT, "No data found.");
+    } else {
+      res.sendJSONResponse({
+        code: httpStatus.OK,
+        status: true,
+        message: "Error has been marked resolved.",
+      });
+    }
+  })
+);
 
 router.post("/", async function (req, res, next) {
   const columns = ["method", "url", "code", "updated_at"];

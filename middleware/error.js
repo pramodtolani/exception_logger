@@ -71,7 +71,6 @@ const saveExceptionData = async ({ req, stack, statusCode }) => {
       objException.resolved = ExceptionsModal.PENDING;
     }
     objException.response_payload = req.body || {};
-    objException.count = objException.count + 1;
     objException.response_time = responseTime;
 
     if (logData.length) {
