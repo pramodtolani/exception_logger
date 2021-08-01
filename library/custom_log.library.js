@@ -1,39 +1,29 @@
-const CustomLogs = function () {
-	this.log = (req, label, ...data) => {
-		if ("headers" in req) {
-      req.log_data.push(formatLogData(label, data));
-      console.log(data);
-		}
-	};
+const util = require("util");
+class CustomLog {
+  req;
+  res;
+  originalLogger;
 
-	this.info = (req, logData, label, ...data) => {
-		if ("headers" in req) {
-      req.log_data.push(formatLogData(label, data));
-      console.info(data);
-		}
-	};
-
-	this.error = (req, logData, label, ...data) => {
-		if ("headers" in req) {
-      req.log_data.push(formatLogData(label, data));
-      console.error(data);
-		}
-	};
-
-	this.warn = (req, logData, label, ...data) => {
-		if ("headers" in req) {
-      req.log_data.push(formatLogData(label, data));
-      console.warn(data);
-		}
-	};
-};
-
-const formatLogData = (label, logData = []) => {
-  if (typeof logData === "object") {
-    logData = JSON.stringify(logData);
+  constructor(req, res, originalLogger) {
+    this.req = req;
+    this.res = res;
+    this.originalLogger = originalLogger;
   }
-  
-  return label + " => " + logData;
+
+  log = (...data) => {
+    let logData =
+      data
+        .map((a) => {
+          if (typeof a === "object") {
+            return util.inspect(a, { compact: false, depth: 5 });
+          }
+          return a;
+        })
+        .join(" ") + "\n";
+    this.req.log_data += logData;
+
+    this.originalLogger.apply(this, data);
+  };
 }
 
-module.exports = new CustomLogs();
+module.exports = CustomLog;

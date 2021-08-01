@@ -4,8 +4,6 @@ const httpStatus = require("http-status");
 
 const ApiError = require("../utils/ApiError");
 
-var CustomLog = require("../library/custom_log.library");
-
 const ExceptionsModal = require("../models/exceptions.model");
 
 const errorConverter = (err, req, res, next) => {
@@ -79,7 +77,7 @@ const saveExceptionData = async ({ req, stack, statusCode }) => {
     if (logData.length) {
       objException.log_data.push({
         date: new Date(),
-        log: JSON.stringify(logData),
+        log: logData,
       });
     }
 
@@ -105,7 +103,7 @@ const saveExceptionData = async ({ req, stack, statusCode }) => {
       exceptionData.log_data = [
         {
           date: new Date(),
-          log: JSON.stringify(logData),
+          log: logData,
         },
       ];
     }

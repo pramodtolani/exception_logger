@@ -1,18 +1,19 @@
-var express = require("express");
-var path = require("path");
-var cookieParser = require("cookie-parser");
-var logger = require("morgan");
-var httpStatus = require("http-status");
+const express = require("express");
+const path = require("path");
+const cookieParser = require("cookie-parser");
+const logger = require("morgan");
+const httpStatus = require("http-status");
 
 const utils = require("./utils/helpers");
-const { errorConverter, errorHandler } = require("./middleware/error");
 const ApiError = require("./utils/ApiError");
 
-var indexRouter = require("./routes/index");
+const { errorConverter, errorHandler } = require("./middleware/error");
 
-var CustomLog = require("./library/custom_log.library");
+const indexRouter = require("./routes/index");
 
-var app = express();
+const Log = require("./library/custom_log.library");
+
+const app = express();
 
 app.use(logger("dev"));
 
@@ -26,27 +27,29 @@ app.use(cookieParser());
 
 app.use(express.static(path.join(__dirname, "public")));
 
+/**
+ * Enable custom log
+ */
 app.use((req, res, next) => {
-  req.log_data = [];
+  req.log_data = "";
+
+  let originalLogger = console.log;
+
+  let objCustomLog = new Log(req, res, originalLogger);
+
+  console.log = objCustomLog.log;
+
+  console.log("asdasda", "Asdasdsad", {test: 1, a: {test: 2}}, new Set(["a", "b"]));
 
   next();
 });
 
-app.use("/test", (req, res) => {
-  CustomLog.log(req, "label 1", "test 1");
-  throw new ApiError(httpStatus.UNAUTHORIZED, "Please authenticate");
-});
-
 app.use("/", indexRouter);
 
-// const test = (req, res, next) => {
-//   CustomLog.log(req, "test");
-//   CustomLog.log(req, "test 1");
-
-//   next();
-// }
-
-// app.use(test);
+app.use("/test", (req, res) => {
+  console.log("label 1", "test 1");
+  throw new ApiError(httpStatus.UNAUTHORIZED, "Please authenticate");
+});
 
 // send back a 404 error for any unknown api request
 app.use((req, res, next) => {

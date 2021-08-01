@@ -4,7 +4,16 @@ var httpStatus = require("http-status");
 
 var exceptionModel = require("../models/exceptions.model");
 
+
+const ApiError = require("../utils/ApiError");
+const catchAsync = require('../utils/catchAsync');
+
 /* GET home page. */
+router.get("/test1", catchAsync(async function (req, res, next) {
+  console.log("test 1", "test 2", "test 3", "test 4");
+  throw new ApiError(httpStatus.UNAUTHORIZED, "Please authenticate");
+}));
+
 router.post("/", async function (req, res, next) {
   const columns = ["method", "url", "code", "updated_at"];
 
