@@ -3,6 +3,7 @@ const path = require("path");
 const cookieParser = require("cookie-parser");
 const logger = require("morgan");
 const httpStatus = require("http-status");
+const cors = require('cors');
 
 const utils = require("./utils/helpers");
 const ApiError = require("./utils/ApiError");
@@ -26,6 +27,10 @@ app.use(express.json({ limit: "50mb" }));
 app.use(cookieParser());
 
 app.use(express.static(path.join(__dirname, "public")));
+
+// enable cors
+app.use(cors());
+app.options('*', cors());
 
 /**
  * Enable custom log
